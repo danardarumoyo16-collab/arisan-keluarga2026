@@ -56,27 +56,21 @@
                 </div>
                 <div class="min-w-0">
                     <h1 class="text-lg sm:text-2xl font-bold text-amber-900 tracking-tight leading-none truncate">Arisan Keluarga</h1>
-                    <p id="header-role-subtitle" class="text-xs text-stone-500 font-medium mt-0.5 truncate">Mode Penonton (Terkunci)</p>
+                    <p id="header-role-subtitle" class="text-xs text-amber-700/80 font-medium mt-0.5 truncate">Kocokan Adil &amp; Penuh Kehangatan</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                 <!-- Tombol Login / Status Admin Rosdiana (Iyoh) -->
-                <button id="btn-admin-toggle" onclick="handleAdminButtonClick()" class="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm" title="Login Admin Rosdiana / Iyoh">
-                    <i data-lucide="lock" id="icon-admin-lock" class="w-4 h-4 text-amber-400"></i>
-                    <span id="text-admin-btn">Admin (Iyoh)</span>
+                <button id="btn-admin-toggle" onclick="handleAdminButtonClick()" class="px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm" title="Login Khusus Admin Rosdiana / Iyoh">
+                    <i data-lucide="user-check" class="w-4 h-4 text-amber-700"></i>
+                    <span id="text-admin-btn">Admin: Iyoh / Ros</span>
                 </button>
 
                 <!-- Tombol Ubah PIN (Hanya muncul saat Admin login) -->
                 <button id="btn-change-pin" onclick="openChangePinModal()" class="hidden p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition items-center gap-1 text-xs font-bold shadow-sm" title="Ganti PIN Admin">
                     <i data-lucide="key-round" class="w-4 h-4"></i>
                     <span class="hidden md:inline">PIN</span>
-                </button>
-
-                <!-- Tombol Download File HTML -->
-                <button id="btn-download-html" onclick="downloadStandaloneHTML()" class="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 text-sm font-semibold shadow-sm" title="Unduh File Aplikasi HTML">
-                    <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                    <span class="hidden md:inline">Download HTML</span>
                 </button>
 
                 <!-- Tombol Mute / Unmute Audio -->
@@ -88,12 +82,12 @@
         </div>
     </header>
 
-    <!-- Banner Status Akses -->
-    <div id="viewer-banner" class="bg-amber-100/90 border-b border-amber-200 px-4 py-2 text-center text-xs sm:text-sm text-amber-900 font-medium">
-        🔒 Tampilan ini dalam <strong>Mode Penonton</strong>. Hanya Admin <strong>Rosdiana / Iyoh</strong> yang dapat memutar roda &amp; mengelola data.
+    <!-- Banner Info Singkat & Ramah -->
+    <div id="viewer-banner" class="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2 text-center text-xs sm:text-sm text-amber-900">
+        👋 Selamat datang anggota keluarga! Anda dapat melihat roda &amp; daftar peserta. Tombol putar khusus diaktifkan oleh Admin <strong>Rosdiana / Iyoh</strong>.
     </div>
     <div id="admin-banner" class="hidden bg-emerald-600 text-white px-4 py-2 text-center text-xs sm:text-sm font-semibold">
-        ✅ Login Aktif sebagai <strong>Admin: Rosdiana (Iyoh)</strong> — Anda memiliki akses penuh untuk memutar roda &amp; mengedit peserta.
+        ✅ Mode Admin Aktif (<strong>Rosdiana / Iyoh</strong>) — Roda siap diputar dan daftar peserta dapat dikelola.
     </div>
 
     <!-- Konten Utama -->
@@ -109,7 +103,7 @@
                         <i data-lucide="users" class="w-4 h-4 text-amber-600"></i>
                         <span id="wheel-count-badge">17 Peserta di Roda</span>
                     </span>
-                    <button onclick="shuffleParticipants()" id="btn-shuffle" class="admin-only-control inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                    <button onclick="shuffleParticipants()" id="btn-shuffle" class="admin-only-control hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
                         <i data-lucide="shuffle" class="w-4 h-4"></i>
                         Acak Posisi
                     </button>
@@ -128,22 +122,22 @@
                     <!-- Bingkai Luar Roda -->
                     <div class="w-full h-full rounded-full p-2.5 sm:p-3.5 bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 shadow-2xl flex items-center justify-center relative">
                         <!-- Canvas Roda -->
-                        <canvas id="wheel-canvas" class="w-full h-full rounded-full block cursor-pointer" onclick="spinWheel()" width="494" height="494"></canvas>
+                        <canvas id="wheel-canvas" class="w-full h-full rounded-full block" onclick="spinWheel()" width="494" height="494"></canvas>
                         
                         <!-- Tombol Tengah Roda -->
-                        <button onclick="spinWheel()" id="center-spin-btn" class="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-amber-500 shadow-lg flex flex-col items-center justify-center text-amber-900 font-display font-bold text-xs sm:text-sm hover:scale-105 active:scale-95 transition z-10 disabled:opacity-80 disabled:cursor-not-allowed">
-                            <span id="center-spin-text">PUTAR</span>
+                        <button onclick="spinWheel()" id="center-spin-btn" class="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-amber-500 shadow-lg flex flex-col items-center justify-center text-amber-900 font-display font-bold text-xs sm:text-sm transition z-10">
+                            <span id="center-spin-text">ARISAN</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tombol Aksi Utama -->
+                <!-- Tombol Aksi Utama (Hanya aktif untuk Admin Rosdiana / Iyoh) -->
                 <div class="w-full max-w-md mt-6 flex flex-col items-center gap-3">
-                    <button id="btn-spin-main" onclick="spinWheel()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-display font-bold text-lg sm:text-xl tracking-wide shadow-lg btn-spin-glow transform active:scale-[0.98] transition flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <button id="btn-spin-main" onclick="spinWheel()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-display font-bold text-lg sm:text-xl tracking-wide shadow-lg btn-spin-glow transform active:scale-[0.98] transition flex items-center justify-center gap-2.5">
                         <i data-lucide="play-circle" id="icon-spin-main" class="w-6 h-6"></i>
                         <span id="text-spin-main">PUTAR SEKARANG!</span>
                     </button>
-                    <p id="spin-helper-text" class="text-xs text-stone-500 text-center">Login sebagai Admin Rosdiana (Iyoh) untuk mulai mengocok</p>
+                    <p id="spin-helper-text" class="text-xs text-stone-500 text-center">Hanya Admin Rosdiana / Iyoh yang dapat memutar roda undian</p>
                 </div>
             </section>
 
@@ -159,19 +153,19 @@
                             </div>
                             <div>
                                 <h2 class="text-lg font-bold text-stone-800 leading-tight">Daftar Pemenang</h2>
-                                <p class="text-xs text-stone-500">Tersimpan otomatis di perangkat</p>
+                                <p class="text-xs text-stone-500">Urutan pemenang arisan keluarga</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <button onclick="shareWinnersToWhatsApp()" id="btn-share-wa" class="admin-only-control px-3 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed" title="Buka WhatsApp & Kirim Hasil">
+                            <button onclick="shareWinnersToWhatsApp()" id="btn-share-wa" class="admin-only-control hidden px-3 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Buka WhatsApp & Kirim Hasil">
                                 <i data-lucide="send" class="w-3.5 h-3.5"></i>
                                 <span>Kirim ke WA</span>
                             </button>
                             <button onclick="copyWinnersToClipboard()" id="btn-copy-wa" class="px-2.5 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold transition flex items-center gap-1" title="Salin teks untuk ditempel ke WhatsApp">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                <span class="hidden sm:inline">Salin</span>
+                                <span>Salin</span>
                             </button>
-                            <button onclick="openConfirmModal('clearWinners')" class="admin-only-control p-2 rounded-xl bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-600 transition disabled:opacity-40 disabled:cursor-not-allowed" title="Hapus Semua Riwayat Pemenang">
+                            <button onclick="openConfirmModal('clearWinners')" class="admin-only-control hidden p-2 rounded-xl bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-600 transition" title="Hapus Semua Riwayat Pemenang">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -189,18 +183,18 @@
                                 <i data-lucide="list-checks" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h2 class="text-lg font-bold text-stone-800 leading-tight">Kelola Peserta</h2>
-                                <p class="text-xs text-stone-500">Daftar anggota arisan aktif</p>
+                                <h2 class="text-lg font-bold text-stone-800 leading-tight">Daftar Peserta</h2>
+                                <p class="text-xs text-stone-500">Anggota keluarga yang ikut undian</p>
                             </div>
                         </div>
-                        <button onclick="openConfirmModal('resetDefault')" class="admin-only-control px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed" title="Kembalikan ke 17 nama awal">
+                        <button onclick="openConfirmModal('resetDefault')" class="admin-only-control hidden px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition flex items-center gap-1.5" title="Kembalikan ke 17 nama awal">
                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                             <span>Reset 17 Nama</span>
                         </button>
                     </div>
 
                     <!-- Form Tambah Peserta (Khusus Admin) -->
-                    <form id="form-add-participant" onsubmit="addParticipant(event)" class="flex gap-2 mb-4">
+                    <form id="form-add-participant" onsubmit="addParticipant(event)" class="hidden flex gap-2 mb-4">
                         <input type="text" id="input-new-name" placeholder="Ketik nama anggota baru..." maxlength="25" class="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-medium transition">
                         <button type="submit" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition flex items-center gap-1.5 shrink-0">
                             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -296,16 +290,16 @@
             <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
                 <i data-lucide="shield-check" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-lg font-bold text-stone-800">Verifikasi Admin Arisan</h3>
-            <p class="text-xs text-stone-500 mt-1 mb-4">Khusus <strong>Rosdiana / Iyoh</strong>. Masukkan PIN untuk membuka kunci roda putar.</p>
+            <h3 class="text-lg font-bold text-stone-800">Login Admin Arisan</h3>
+            <p class="text-xs text-stone-500 mt-1 mb-4">Khusus <strong>Rosdiana / Iyoh</strong>. Masukkan PIN untuk mengaktifkan tombol putar.</p>
             <form onsubmit="verifyAdminPin(event)">
-                <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="8" placeholder="Masukkan PIN Admin..." required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center text-lg font-bold tracking-widest mb-4">
+                <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="8" placeholder="Masukkan PIN..." required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center text-lg font-bold tracking-widest mb-4">
                 <div class="flex gap-2.5">
                     <button type="button" onclick="closeAdminLoginModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
                         Batal
                     </button>
                     <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition">
-                        Buka Kunci
+                        Masuk Admin
                     </button>
                 </div>
             </form>
@@ -338,7 +332,7 @@
         // ==========================================
         // 1. KONFIGURASI ADMIN (ROSDIANA / IYOH)
         // ==========================================
-        const DEFAULT_ADMIN_PIN = "1234"; // PIN bawaan, bisa diganti langsung dari tombol PIN
+        const DEFAULT_ADMIN_PIN = "1234";
         const STORAGE_KEY_ADMIN_PIN = "arisan_keluarga_admin_pin_v1";
         const SESSION_KEY_ADMIN_AUTH = "arisan_keluarga_is_admin_v1";
 
@@ -348,10 +342,11 @@
             return localStorage.getItem(STORAGE_KEY_ADMIN_PIN) || DEFAULT_ADMIN_PIN;
         }
 
-        function requireAdminAccess() {
+        function requireAdminAccess(silent = false) {
             if (!isAdminAuthenticated) {
-                showToast("Akses dibatasi! Hanya Admin Rosdiana / Iyoh yang bisa melakukan ini.", "error");
-                openAdminLoginModal();
+                if (!silent) {
+                    showToast("Hanya Admin Rosdiana / Iyoh yang dapat memutar roda undian.", "info");
+                }
                 return false;
             }
             return true;
@@ -362,7 +357,7 @@
                 isAdminAuthenticated = false;
                 sessionStorage.removeItem(SESSION_KEY_ADMIN_AUTH);
                 applyRoleUI();
-                showToast("Mode Admin dikunci kembali", "info");
+                showToast("Keluar dari Mode Admin", "info");
             } else {
                 openAdminLoginModal();
             }
@@ -393,7 +388,7 @@
                 applyRoleUI();
                 showToast("Selamat datang, Admin Rosdiana (Iyoh)!", "success");
             } else {
-                showToast("PIN salah! Hanya Rosdiana / Iyoh yang dapat membuka kunci.", "error");
+                showToast("PIN salah! Silakan coba lagi.", "error");
                 document.getElementById("admin-pin-input").value = "";
                 document.getElementById("admin-pin-input").focus();
             }
@@ -424,7 +419,7 @@
             }
             localStorage.setItem(STORAGE_KEY_ADMIN_PIN, newPin);
             closeChangePinModal();
-            showToast("PIN Admin Rosdiana (Iyoh) berhasil diperbarui!", "success");
+            showToast("PIN Admin Rosdiana / Iyoh berhasil diperbarui!", "success");
         }
 
         function applyRoleUI() {
@@ -436,14 +431,19 @@
             const adminBanner = document.getElementById("admin-banner");
             const formAdd = document.getElementById("form-add-participant");
             const helperText = document.getElementById("spin-helper-text");
+            const canvasEl = document.getElementById("wheel-canvas");
 
             document.querySelectorAll(".admin-only-control").forEach(el => {
-                el.disabled = !isAdminAuthenticated;
+                if (isAdminAuthenticated) {
+                    el.classList.remove("hidden");
+                } else {
+                    el.classList.add("hidden");
+                }
             });
 
             if (isAdminAuthenticated) {
-                adminBtn.className = "px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
-                textAdminBtn.textContent = "Kunci Admin";
+                adminBtn.className = "px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
+                textAdminBtn.textContent = "Admin Aktif (Keluar)";
                 changePinBtn.classList.remove("hidden");
                 changePinBtn.classList.add("flex");
                 subtitle.textContent = "Admin: Rosdiana (Iyoh)";
@@ -451,18 +451,20 @@
                 viewerBanner.classList.add("hidden");
                 adminBanner.classList.remove("hidden");
                 formAdd.classList.remove("hidden");
+                canvasEl.classList.add("cursor-pointer");
                 helperText.textContent = "Klik tombol di atas atau sentuh roda untuk mengocok pemenang";
             } else {
-                adminBtn.className = "px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
-                textAdminBtn.textContent = "Admin (Iyoh)";
+                adminBtn.className = "px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
+                textAdminBtn.textContent = "Admin: Iyoh / Ros";
                 changePinBtn.classList.add("hidden");
                 changePinBtn.classList.remove("flex");
-                subtitle.textContent = "Mode Penonton (Terkunci)";
-                subtitle.className = "text-xs text-stone-500 font-medium mt-0.5 truncate";
+                subtitle.textContent = "Kocokan Adil & Penuh Kehangatan";
+                subtitle.className = "text-xs text-amber-700/80 font-medium mt-0.5 truncate";
                 viewerBanner.classList.remove("hidden");
                 adminBanner.classList.add("hidden");
                 formAdd.classList.add("hidden");
-                helperText.textContent = "Terkunci: Login sebagai Admin Rosdiana (Iyoh) untuk memutar roda";
+                canvasEl.classList.remove("cursor-pointer");
+                helperText.textContent = "Hanya Admin Rosdiana / Iyoh yang dapat memutar roda undian";
             }
 
             updateControlsState();
@@ -554,30 +556,7 @@
         }
 
         // ==========================================
-        // 3. DOWNLOAD FILE HTML STANDALONE
-        // ==========================================
-        function downloadStandaloneHTML() {
-            try {
-                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'arisan_keluarga.html';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-                showToast('File arisan_keluarga.html berhasil diunduh!', 'success');
-            } catch (err) {
-                showToast('Gagal mengunduh file HTML', 'error');
-            }
-        }
-
-        // ==========================================
-        // 4. DATA PESERTA & STATE APLIKASI
+        // 3. DATA PESERTA & STATE APLIKASI
         // ==========================================
         const DEFAULT_PARTICIPANTS = [
             "Iyoh", "Dilla", "Yasmin", "Lina", "Reva", 
@@ -604,7 +583,7 @@
         let pendingConfirmAction = null;
 
         // ==========================================
-        // 5. WEB AUDIO API (EFEK SUARA)
+        // 4. WEB AUDIO API (EFEK SUARA)
         // ==========================================
         let audioCtx = null;
 
@@ -683,7 +662,7 @@
         }
 
         // ==========================================
-        // 6. PENYIMPANAN LOCALSTORAGE
+        // 5. PENYIMPANAN LOCALSTORAGE
         // ==========================================
         function loadState() {
             try {
@@ -717,7 +696,7 @@
         }
 
         // ==========================================
-        // 7. MENGGAMBAR RODA PUTAR (HTML5 CANVAS)
+        // 6. MENGGAMBAR RODA PUTAR (HTML5 CANVAS)
         // ==========================================
         const canvas = document.getElementById('wheel-canvas');
         const ctx = canvas.getContext('2d');
@@ -819,7 +798,7 @@
         }
 
         // ==========================================
-        // 8. LOGIKA PUTARAN RODA (DIBATASI ADMIN)
+        // 7. LOGIKA PUTARAN RODA (KHUSUS ADMIN)
         // ==========================================
         function spinWheel() {
             if (!requireAdminAccess()) return;
@@ -906,7 +885,7 @@
         }
 
         // ==========================================
-        // 9. PENGUMUMAN PEMENANG & KONFETI
+        // 8. PENGUMUMAN PEMENANG & KONFETI
         // ==========================================
         function announceWinner(index) {
             const winnerName = participants[index];
@@ -983,7 +962,7 @@
         }
 
         // ==========================================
-        // 10. MANAJEMEN PESERTA & RIWAYAT PEMENANG
+        // 9. MANAJEMEN PESERTA & RIWAYAT PEMENANG
         // ==========================================
         function renderParticipantsList() {
             const listEl = document.getElementById('participants-list');
@@ -1125,7 +1104,7 @@
         }
 
         // ==========================================
-        // 11. MODAL EDIT & KONFIRMASI
+        // 10. MODAL EDIT & KONFIRMASI
         // ==========================================
         function openEditModal(index) {
             if (!requireAdminAccess() || isSpinning) return;
@@ -1199,7 +1178,7 @@
         });
 
         // ==========================================
-        // 12. KONTROL TOMBOL & UTILITAS
+        // 11. KONTROL TOMBOL & UTILITAS
         // ==========================================
         function updateControlsState() {
             const btnMain = document.getElementById('btn-spin-main');
@@ -1209,10 +1188,12 @@
             const btnShuffle = document.getElementById('btn-shuffle');
 
             if (!isAdminAuthenticated) {
-                btnMain.disabled = false; // tetap bisa diklik untuk memunculkan pop-up PIN Admin
+                btnMain.disabled = true;
                 btnMain.classList.remove('btn-spin-glow');
-                textMain.textContent = '🔒 TERKUNCI (KHUSUS ADMIN IYOH)';
-                textCenter.textContent = '🔒';
+                btnMain.className = "w-full py-3.5 px-6 rounded-2xl bg-stone-200 text-stone-500 font-display font-bold text-base sm:text-lg tracking-wide flex items-center justify-center gap-2 cursor-not-allowed";
+                textMain.textContent = 'MENUNGGU ADMIN IYOH / ROS MEMUTAR';
+                btnCenter.disabled = true;
+                textCenter.textContent = 'ARISAN';
                 btnShuffle.disabled = true;
                 return;
             }
@@ -1220,6 +1201,7 @@
             btnMain.disabled = isSpinning;
             btnCenter.disabled = isSpinning;
             btnShuffle.disabled = isSpinning;
+            btnMain.className = "w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-display font-bold text-lg sm:text-xl tracking-wide shadow-lg btn-spin-glow transform active:scale-[0.98] transition flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed";
 
             if (isSpinning) {
                 btnMain.classList.remove('btn-spin-glow');
@@ -1260,7 +1242,6 @@
             return div.innerHTML;
         }
 
-        // Inisialisasi saat halaman dimuat
         window.addEventListener('DOMContentLoaded', () => {
             loadState();
             applyRoleUI();
