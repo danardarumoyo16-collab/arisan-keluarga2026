@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin Wheel Arisan Keluarga</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top left, #fffbeb 0%, #fef3c7 45%, #ffedd5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        h1, h2, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5); }
+            50% { box-shadow: 0 0 0 14px rgba(234, 88, 12, 0); }
+        }
+        .btn-spin-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fef3c7;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d97706;
+        }
+    </style>
+</head>
+<body class="text-stone-800 antialiased selection:bg-amber-200 selection:text-amber-900">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-amber-200/70 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md shrink-0">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-lg sm:text-2xl font-bold text-amber-900 tracking-tight leading-none truncate">Arisan Keluarga</h1>
+                    <p id="header-role-subtitle" class="text-xs text-stone-500 font-medium mt-0.5 truncate">Mode Penonton (Terkunci)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <!-- Tombol Login / Status Admin Rosdiana (Iyoh) -->
+                <button id="btn-admin-toggle" onclick="handleAdminButtonClick()" class="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm" title="Login Admin Rosdiana / Iyoh">
+                    <i data-lucide="lock" id="icon-admin-lock" class="w-4 h-4 text-amber-400"></i>
+                    <span id="text-admin-btn">Admin (Iyoh)</span>
+                </button>
+
+                <!-- Tombol Ubah PIN (Hanya muncul saat Admin login) -->
+                <button id="btn-change-pin" onclick="openChangePinModal()" class="hidden p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition items-center gap-1 text-xs font-bold shadow-sm" title="Ganti PIN Admin">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                    <span class="hidden md:inline">PIN</span>
+                </button>
+
+                <!-- Tombol Download File HTML -->
+                <button id="btn-download-html" onclick="downloadStandaloneHTML()" class="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 text-sm font-semibold shadow-sm" title="Unduh File Aplikasi HTML">
+                    <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    <span class="hidden md:inline">Download HTML</span>
+                </button>
+
+                <!-- Tombol Mute / Unmute Audio -->
+                <button id="btn-sound" onclick="toggleSound()" class="p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition flex items-center gap-1.5 text-sm font-semibold shadow-sm" title="Suara Efek">
+                    <i data-lucide="volume-2" id="icon-sound-on" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    <i data-lucide="volume-x" id="icon-sound-off" class="w-4 h-4 sm:w-5 sm:h-5 hidden text-red-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner Status Akses -->
+    <div id="viewer-banner" class="bg-amber-100/90 border-b border-amber-200 px-4 py-2 text-center text-xs sm:text-sm text-amber-900 font-medium">
+        🔒 Tampilan ini dalam <strong>Mode Penonton</strong>. Hanya Admin <strong>Rosdiana / Iyoh</strong> yang dapat memutar roda &amp; mengelola data.
+    </div>
+    <div id="admin-banner" class="hidden bg-emerald-600 text-white px-4 py-2 text-center text-xs sm:text-sm font-semibold">
+        ✅ Login Aktif sebagai <strong>Admin: Rosdiana (Iyoh)</strong> — Anda memiliki akses penuh untuk memutar roda &amp; mengedit peserta.
+    </div>
+
+    <!-- Konten Utama -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+            <!-- Kolom Kiri (7 kolom di desktop): Roda Putar -->
+            <section class="lg:col-span-7 bg-white/90 backdrop-blur-sm rounded-3xl p-5 sm:p-8 shadow-xl border border-amber-100 flex flex-col items-center relative">
+                
+                <!-- Info Jumlah Peserta di Roda -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-amber-100 text-amber-900">
+                        <i data-lucide="users" class="w-4 h-4 text-amber-600"></i>
+                        <span id="wheel-count-badge">17 Peserta di Roda</span>
+                    </span>
+                    <button onclick="shuffleParticipants()" id="btn-shuffle" class="admin-only-control inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i data-lucide="shuffle" class="w-4 h-4"></i>
+                        Acak Posisi
+                    </button>
+                </div>
+
+                <!-- Container Roda & Jarum Penunjuk -->
+                <div id="wheel-wrapper" class="relative w-full max-w-[440px] aspect-square my-2 flex items-center justify-center select-none">
+                    <!-- Jarum Penunjuk -->
+                    <div id="wheel-pointer" class="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 drop-shadow-lg origin-right transition-transform duration-75">
+                        <svg width="46" height="46" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 24L40 6L34 24L40 42L4 24Z" fill="#DC2626" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"></path>
+                            <circle cx="35" cy="24" r="4" fill="#FEF08A"></circle>
+                        </svg>
+                    </div>
+
+                    <!-- Bingkai Luar Roda -->
+                    <div class="w-full h-full rounded-full p-2.5 sm:p-3.5 bg-gradient-to-tr from-amber-500 via-yellow-400 to-orange-500 shadow-2xl flex items-center justify-center relative">
+                        <!-- Canvas Roda -->
+                        <canvas id="wheel-canvas" class="w-full h-full rounded-full block cursor-pointer" onclick="spinWheel()" width="494" height="494"></canvas>
+                        
+                        <!-- Tombol Tengah Roda -->
+                        <button onclick="spinWheel()" id="center-spin-btn" class="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-amber-500 shadow-lg flex flex-col items-center justify-center text-amber-900 font-display font-bold text-xs sm:text-sm hover:scale-105 active:scale-95 transition z-10 disabled:opacity-80 disabled:cursor-not-allowed">
+                            <span id="center-spin-text">PUTAR</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi Utama -->
+                <div class="w-full max-w-md mt-6 flex flex-col items-center gap-3">
+                    <button id="btn-spin-main" onclick="spinWheel()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white font-display font-bold text-lg sm:text-xl tracking-wide shadow-lg btn-spin-glow transform active:scale-[0.98] transition flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <i data-lucide="play-circle" id="icon-spin-main" class="w-6 h-6"></i>
+                        <span id="text-spin-main">PUTAR SEKARANG!</span>
+                    </button>
+                    <p id="spin-helper-text" class="text-xs text-stone-500 text-center">Login sebagai Admin Rosdiana (Iyoh) untuk mulai mengocok</p>
+                </div>
+            </section>
+
+            <!-- Kolom Kanan (5 kolom di desktop): Riwayat Pemenang & Manajemen Peserta -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+
+                <!-- Kartu 1: Riwayat Daftar Pemenang -->
+                <section class="bg-white/95 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-lg border border-amber-100">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                                <i data-lucide="trophy" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-stone-800 leading-tight">Daftar Pemenang</h2>
+                                <p class="text-xs text-stone-500">Tersimpan otomatis di perangkat</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="shareWinnersToWhatsApp()" id="btn-share-wa" class="admin-only-control px-3 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed" title="Buka WhatsApp & Kirim Hasil">
+                                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                <span>Kirim ke WA</span>
+                            </button>
+                            <button onclick="copyWinnersToClipboard()" id="btn-copy-wa" class="px-2.5 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold transition flex items-center gap-1" title="Salin teks untuk ditempel ke WhatsApp">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Salin</span>
+                            </button>
+                            <button onclick="openConfirmModal('clearWinners')" class="admin-only-control p-2 rounded-xl bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-600 transition disabled:opacity-40 disabled:cursor-not-allowed" title="Hapus Semua Riwayat Pemenang">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- List Pemenang -->
+                    <div id="winners-list" class="space-y-2.5 max-h-[250px] overflow-y-auto pr-1"></div>
+                </section>
+
+                <!-- Kartu 2: Manajemen Peserta -->
+                <section class="bg-white/95 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-lg border border-amber-100">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center">
+                                <i data-lucide="list-checks" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-stone-800 leading-tight">Kelola Peserta</h2>
+                                <p class="text-xs text-stone-500">Daftar anggota arisan aktif</p>
+                            </div>
+                        </div>
+                        <button onclick="openConfirmModal('resetDefault')" class="admin-only-control px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed" title="Kembalikan ke 17 nama awal">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>Reset 17 Nama</span>
+                        </button>
+                    </div>
+
+                    <!-- Form Tambah Peserta (Khusus Admin) -->
+                    <form id="form-add-participant" onsubmit="addParticipant(event)" class="flex gap-2 mb-4">
+                        <input type="text" id="input-new-name" placeholder="Ketik nama anggota baru..." maxlength="25" class="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-medium transition">
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Tambah</span>
+                        </button>
+                    </form>
+
+                    <!-- Daftar Peserta Aktif -->
+                    <div id="participants-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL 1: Pengumuman Pemenang -->
+    <div id="winner-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-amber-300 text-center relative transform transition-all scale-95 opacity-0" id="winner-modal-card">
+            <div class="w-20 h-20 mx-auto -mt-14 mb-4 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 border-4 border-white shadow-xl flex items-center justify-center text-white">
+                <i data-lucide="party-popper" class="w-10 h-10"></i>
+            </div>
+
+            <span class="inline-block px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider mb-2" id="modal-winner-order">
+                Pemenang Arisan Ke-1
+            </span>
+            
+            <h3 class="text-stone-500 text-sm font-medium">Selamat kepada:</h3>
+            <div id="modal-winner-name" class="font-display text-3xl sm:text-4xl font-bold text-orange-600 my-2 break-words">
+                Nama Pemenang
+            </div>
+            <p class="text-xs text-stone-500 mb-6">
+                Nama pemenang telah otomatis dicatat ke dalam daftar riwayat pemenang.
+            </p>
+
+            <div class="flex flex-col gap-2.5">
+                <button onclick="shareLatestWinnerToWhatsApp()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>Bagikan ke WA</span>
+                </button>
+                <button onclick="resolveWinner(true)" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="user-minus" class="w-4 h-4"></i>
+                    <span>Hapus Pemenang dari Roda</span>
+                </button>
+                <button onclick="resolveWinner(false)" class="w-full py-3 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm transition flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                    <span>Simpan Pemenang (Tetap di Roda)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Konfirmasi Kustom -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 text-center">
+            <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                <i data-lucide="alert-circle" class="w-6 h-6"></i>
+            </div>
+            <h3 id="confirm-title" class="text-lg font-bold text-stone-800 mb-1">Konfirmasi</h3>
+            <p id="confirm-message" class="text-sm text-stone-600 mb-6">Apakah Anda yakin?</p>
+            <div class="flex gap-2.5">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
+                    Batal
+                </button>
+                <button id="confirm-yes-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Edit Nama Peserta -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200">
+            <h3 class="text-lg font-bold text-stone-800 mb-1">Edit Nama Peserta</h3>
+            <p class="text-xs text-stone-500 mb-4">Ubah penulisan nama anggota keluarga</p>
+            <form onsubmit="saveEditedParticipant(event)">
+                <input type="text" id="edit-name-input" maxlength="25" required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm font-semibold mb-4">
+                <div class="flex gap-2.5">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Login Admin Rosdiana / Iyoh -->
+    <div id="admin-login-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-amber-300 text-center">
+            <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <i data-lucide="shield-check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-lg font-bold text-stone-800">Verifikasi Admin Arisan</h3>
+            <p class="text-xs text-stone-500 mt-1 mb-4">Khusus <strong>Rosdiana / Iyoh</strong>. Masukkan PIN untuk membuka kunci roda putar.</p>
+            <form onsubmit="verifyAdminPin(event)">
+                <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="8" placeholder="Masukkan PIN Admin..." required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center text-lg font-bold tracking-widest mb-4">
+                <div class="flex gap-2.5">
+                    <button type="button" onclick="closeAdminLoginModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition">
+                        Buka Kunci
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Ubah PIN Admin -->
+    <div id="change-pin-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 text-center">
+            <h3 class="text-lg font-bold text-stone-800 mb-1">Ubah PIN Admin</h3>
+            <p class="text-xs text-stone-500 mb-4">Buat PIN baru (4–8 digit angka) khusus Rosdiana / Iyoh</p>
+            <form onsubmit="saveNewAdminPin(event)">
+                <input type="password" id="new-pin-input" inputmode="numeric" minlength="4" maxlength="8" placeholder="PIN Baru (min. 4 angka)" required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center text-lg font-bold tracking-widest mb-4">
+                <div class="flex gap-2.5">
+                    <button type="button" onclick="closeChangePinModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition">
+                        Simpan PIN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none w-max max-w-[90vw]"></div>
+
+    <script>
+        // ==========================================
+        // 1. KONFIGURASI ADMIN (ROSDIANA / IYOH)
+        // ==========================================
+        const DEFAULT_ADMIN_PIN = "1234"; // PIN bawaan, bisa diganti langsung dari tombol PIN
+        const STORAGE_KEY_ADMIN_PIN = "arisan_keluarga_admin_pin_v1";
+        const SESSION_KEY_ADMIN_AUTH = "arisan_keluarga_is_admin_v1";
+
+        let isAdminAuthenticated = sessionStorage.getItem(SESSION_KEY_ADMIN_AUTH) === "true";
+
+        function getAdminPin() {
+            return localStorage.getItem(STORAGE_KEY_ADMIN_PIN) || DEFAULT_ADMIN_PIN;
+        }
+
+        function requireAdminAccess() {
+            if (!isAdminAuthenticated) {
+                showToast("Akses dibatasi! Hanya Admin Rosdiana / Iyoh yang bisa melakukan ini.", "error");
+                openAdminLoginModal();
+                return false;
+            }
+            return true;
+        }
+
+        function handleAdminButtonClick() {
+            if (isAdminAuthenticated) {
+                isAdminAuthenticated = false;
+                sessionStorage.removeItem(SESSION_KEY_ADMIN_AUTH);
+                applyRoleUI();
+                showToast("Mode Admin dikunci kembali", "info");
+            } else {
+                openAdminLoginModal();
+            }
+        }
+
+        function openAdminLoginModal() {
+            const modal = document.getElementById("admin-login-modal");
+            const input = document.getElementById("admin-pin-input");
+            input.value = "";
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeAdminLoginModal() {
+            const modal = document.getElementById("admin-login-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function verifyAdminPin(e) {
+            e.preventDefault();
+            const enteredPin = document.getElementById("admin-pin-input").value.trim();
+            if (enteredPin === getAdminPin()) {
+                isAdminAuthenticated = true;
+                sessionStorage.setItem(SESSION_KEY_ADMIN_AUTH, "true");
+                closeAdminLoginModal();
+                applyRoleUI();
+                showToast("Selamat datang, Admin Rosdiana (Iyoh)!", "success");
+            } else {
+                showToast("PIN salah! Hanya Rosdiana / Iyoh yang dapat membuka kunci.", "error");
+                document.getElementById("admin-pin-input").value = "";
+                document.getElementById("admin-pin-input").focus();
+            }
+        }
+
+        function openChangePinModal() {
+            if (!requireAdminAccess()) return;
+            const modal = document.getElementById("change-pin-modal");
+            const input = document.getElementById("new-pin-input");
+            input.value = "";
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeChangePinModal() {
+            const modal = document.getElementById("change-pin-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function saveNewAdminPin(e) {
+            e.preventDefault();
+            const newPin = document.getElementById("new-pin-input").value.trim();
+            if (newPin.length < 4) {
+                showToast("PIN minimal 4 karakter", "error");
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY_ADMIN_PIN, newPin);
+            closeChangePinModal();
+            showToast("PIN Admin Rosdiana (Iyoh) berhasil diperbarui!", "success");
+        }
+
+        function applyRoleUI() {
+            const adminBtn = document.getElementById("btn-admin-toggle");
+            const textAdminBtn = document.getElementById("text-admin-btn");
+            const changePinBtn = document.getElementById("btn-change-pin");
+            const subtitle = document.getElementById("header-role-subtitle");
+            const viewerBanner = document.getElementById("viewer-banner");
+            const adminBanner = document.getElementById("admin-banner");
+            const formAdd = document.getElementById("form-add-participant");
+            const helperText = document.getElementById("spin-helper-text");
+
+            document.querySelectorAll(".admin-only-control").forEach(el => {
+                el.disabled = !isAdminAuthenticated;
+            });
+
+            if (isAdminAuthenticated) {
+                adminBtn.className = "px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
+                textAdminBtn.textContent = "Kunci Admin";
+                changePinBtn.classList.remove("hidden");
+                changePinBtn.classList.add("flex");
+                subtitle.textContent = "Admin: Rosdiana (Iyoh)";
+                subtitle.className = "text-xs text-emerald-700 font-bold mt-0.5 truncate";
+                viewerBanner.classList.add("hidden");
+                adminBanner.classList.remove("hidden");
+                formAdd.classList.remove("hidden");
+                helperText.textContent = "Klik tombol di atas atau sentuh roda untuk mengocok pemenang";
+            } else {
+                adminBtn.className = "px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-900 text-white transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm";
+                textAdminBtn.textContent = "Admin (Iyoh)";
+                changePinBtn.classList.add("hidden");
+                changePinBtn.classList.remove("flex");
+                subtitle.textContent = "Mode Penonton (Terkunci)";
+                subtitle.className = "text-xs text-stone-500 font-medium mt-0.5 truncate";
+                viewerBanner.classList.remove("hidden");
+                adminBanner.classList.add("hidden");
+                formAdd.classList.add("hidden");
+                helperText.textContent = "Terkunci: Login sebagai Admin Rosdiana (Iyoh) untuk memutar roda";
+            }
+
+            updateControlsState();
+            renderParticipantsList();
+            renderWinnersList();
+        }
+
+        // ==========================================
+        // 2. BAGIKAN & SALIN HASIL UNTUK GRUP WHATSAPP
+        // ==========================================
+        function formatWhatsAppAnnouncement(includeLatestHighlight = false) {
+            const today = new Date().toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            let text = `🎉 *HASIL KOCOKAN ARISAN KELUARGA* 🎉\n`;
+            text += `📅 ${today}\n\n`;
+
+            if (includeLatestHighlight && winners.length > 0) {
+                const latest = winners[winners.length - 1];
+                text += `🏆 *PEMENANG TERBARU (Ke-${latest.order}):*\n`;
+                text += `👉 *${latest.name.toUpperCase()}* 🎊\n\n`;
+            }
+
+            if (winners.length > 0) {
+                text += `📋 *Daftar Pemenang Tercatat:*\n`;
+                winners.forEach((w, idx) => {
+                    text += `${idx + 1}. Pemenang ke-${idx + 1}: *${w.name}*\n`;
+                });
+            }
+
+            const remainingList = participants.filter((name, idx) => {
+                if (includeLatestHighlight && idx === currentWinnerIndex) return false;
+                return true;
+            });
+
+            text += `\n👥 *Sisa Peserta di Roda (${remainingList.length} orang):*\n`;
+            text += remainingList.length > 0 ? remainingList.join(', ') : '_Semua peserta sudah mendapat giliran!_';
+            text += `\n\nSelamat kepada pemenang! 🙏✨`;
+
+            return text;
+        }
+
+        function shareLatestWinnerToWhatsApp() {
+            if (!requireAdminAccess()) return;
+            if (winners.length === 0) {
+                showToast('Belum ada pemenang untuk dibagikan', 'error');
+                return;
+            }
+            const text = formatWhatsAppAnnouncement(true);
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        function shareWinnersToWhatsApp() {
+            if (!requireAdminAccess()) return;
+            if (winners.length === 0) {
+                showToast('Belum ada pemenang untuk dikirim ke WA', 'error');
+                return;
+            }
+            const text = formatWhatsAppAnnouncement(false);
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        function copyWinnersToClipboard() {
+            if (winners.length === 0) {
+                showToast('Belum ada pemenang untuk disalin', 'error');
+                return;
+            }
+
+            const text = formatWhatsAppAnnouncement(false);
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Hasil arisan disalin! Siap ditempel ke WhatsApp', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin teks otomatis', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // ==========================================
+        // 3. DOWNLOAD FILE HTML STANDALONE
+        // ==========================================
+        function downloadStandaloneHTML() {
+            try {
+                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'arisan_keluarga.html';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showToast('File arisan_keluarga.html berhasil diunduh!', 'success');
+            } catch (err) {
+                showToast('Gagal mengunduh file HTML', 'error');
+            }
+        }
+
+        // ==========================================
+        // 4. DATA PESERTA & STATE APLIKASI
+        // ==========================================
+        const DEFAULT_PARTICIPANTS = [
+            "Iyoh", "Dilla", "Yasmin", "Lina", "Reva", 
+            "Fanda", "Mutia", "Mutia2", "Vildan", "Maswanih", 
+            "Apis", "Sagara", "Manih", "Raka", "Jamhari", 
+            "Ali", "Azzam"
+        ];
+
+        const WHEEL_COLORS = [
+            "#F97316", "#F59E0B", "#10B981", "#06B6D4", "#3B82F6",
+            "#8B5CF6", "#EC4899", "#EF4444", "#14B8A6", "#EAB308"
+        ];
+
+        const STORAGE_KEY_PARTICIPANTS = 'arisan_keluarga_participants_v1';
+        const STORAGE_KEY_WINNERS = 'arisan_keluarga_winners_v1';
+
+        let participants = [];
+        let winners = [];
+        let currentAngle = 0;
+        let isSpinning = false;
+        let soundEnabled = true;
+        let currentWinnerIndex = -1;
+        let editingIndex = -1;
+        let pendingConfirmAction = null;
+
+        // ==========================================
+        // 5. WEB AUDIO API (EFEK SUARA)
+        // ==========================================
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTickSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.045);
+
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } catch (e) {}
+        }
+
+        function playWinSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+                const times = [0, 0.11, 0.22, 0.35, 0.52, 0.65];
+                const durations = [0.1, 0.1, 0.12, 0.15, 0.12, 0.45];
+
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    const startTime = audioCtx.currentTime + times[idx];
+                    osc.frequency.setValueAtTime(freq, startTime);
+
+                    gain.gain.setValueAtTime(0.001, startTime);
+                    gain.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + durations[idx]);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + durations[idx] + 0.02);
+                });
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const iconOn = document.getElementById('icon-sound-on');
+            const iconOff = document.getElementById('icon-sound-off');
+
+            if (soundEnabled) {
+                initAudio();
+                iconOn.classList.remove('hidden');
+                iconOff.classList.add('hidden');
+                showToast('Efek suara diaktifkan', 'info');
+            } else {
+                iconOn.classList.add('hidden');
+                iconOff.classList.remove('hidden');
+                showToast('Efek suara dimatikan', 'info');
+            }
+        }
+
+        // ==========================================
+        // 6. PENYIMPANAN LOCALSTORAGE
+        // ==========================================
+        function loadState() {
+            try {
+                const savedParticipants = localStorage.getItem(STORAGE_KEY_PARTICIPANTS);
+                const savedWinners = localStorage.getItem(STORAGE_KEY_WINNERS);
+
+                if (savedParticipants) {
+                    const parsed = JSON.parse(savedParticipants);
+                    participants = Array.isArray(parsed) ? parsed : [...DEFAULT_PARTICIPANTS];
+                } else {
+                    participants = [...DEFAULT_PARTICIPANTS];
+                }
+
+                if (savedWinners) {
+                    const parsedW = JSON.parse(savedWinners);
+                    winners = Array.isArray(parsedW) ? parsedW : [];
+                } else {
+                    winners = [];
+                }
+            } catch (err) {
+                participants = [...DEFAULT_PARTICIPANTS];
+                winners = [];
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY_PARTICIPANTS, JSON.stringify(participants));
+                localStorage.setItem(STORAGE_KEY_WINNERS, JSON.stringify(winners));
+            } catch (err) {}
+        }
+
+        // ==========================================
+        // 7. MENGGAMBAR RODA PUTAR (HTML5 CANVAS)
+        // ==========================================
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const wrapper = document.getElementById('wheel-wrapper');
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const size = Math.max(260, rect.width - 28);
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawWheel();
+        }
+
+        function drawWheel() {
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(centerX, centerY) - 4;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const count = participants.length;
+
+            if (count === 0) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#F5F5F4';
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#D6D3D1';
+                ctx.stroke();
+
+                ctx.fillStyle = '#78716C';
+                ctx.font = 'bold 16px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Belum ada peserta', centerX, centerY - 35);
+                return;
+            }
+
+            const sliceAngle = (2 * Math.PI) / count;
+
+            for (let i = 0; i < count; i++) {
+                const startAngle = currentAngle + i * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+
+                let colorIndex = i % WHEEL_COLORS.length;
+                if (i === count - 1 && count > 1 && colorIndex === 0) {
+                    colorIndex = 2;
+                }
+                ctx.fillStyle = WHEEL_COLORS[colorIndex];
+                ctx.fill();
+
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#FFFFFF';
+                
+                const baseFontSize = count > 20 ? 11 : count > 14 ? 13 : 15;
+                const scaleFactor = width / 400;
+                const fontSize = Math.max(10, Math.round(baseFontSize * scaleFactor));
+                ctx.font = `700 ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+
+                const label = participants[i];
+                const textRadius = radius - 18;
+                ctx.fillText(label, textRadius, 0);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle);
+                ctx.beginPath();
+                ctx.arc(radius - 7, 0, 3, 0, 2 * Math.PI);
+                ctx.fillStyle = '#FEF08A';
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // ==========================================
+        // 8. LOGIKA PUTARAN RODA (DIBATASI ADMIN)
+        // ==========================================
+        function spinWheel() {
+            if (!requireAdminAccess()) return;
+            if (isSpinning) return;
+
+            if (participants.length === 0) {
+                showToast('Tambahkan peserta terlebih dahulu sebelum memutar!', 'error');
+                return;
+            }
+
+            if (participants.length === 1) {
+                initAudio();
+                currentWinnerIndex = 0;
+                announceWinner(0);
+                return;
+            }
+
+            initAudio();
+            isSpinning = true;
+            updateControlsState();
+
+            const count = participants.length;
+            const sliceAngle = (2 * Math.PI) / count;
+
+            const extraSpins = 6 + Math.floor(Math.random() * 4);
+            const randomOffset = Math.random() * 2 * Math.PI;
+            const totalRotation = extraSpins * 2 * Math.PI + randomOffset;
+
+            const startAngle = currentAngle;
+            const targetAngle = startAngle + totalRotation;
+            const duration = 5200;
+            const startTime = performance.now();
+
+            let lastSlicePassed = Math.floor(((2 * Math.PI - (startAngle % (2 * Math.PI))) % (2 * Math.PI)) / sliceAngle);
+
+            function easeOutQuint(t) {
+                return 1 - Math.pow(1 - t, 5);
+            }
+
+            function animateSpin(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeOutQuint(progress);
+
+                currentAngle = startAngle + totalRotation * eased;
+                drawWheel();
+
+                const normalizedAngle = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                const pointerAngle = (2 * Math.PI - normalizedAngle) % (2 * Math.PI);
+                const currentSlice = Math.floor(pointerAngle / sliceAngle) % count;
+
+                if (currentSlice !== lastSlicePassed) {
+                    playTickSound();
+                    animatePointerBounce();
+                    lastSlicePassed = currentSlice;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isSpinning = false;
+                    currentAngle = targetAngle % (2 * Math.PI);
+                    drawWheel();
+                    updateControlsState();
+
+                    const finalNorm = ((currentAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                    const finalPointer = (2 * Math.PI - finalNorm) % (2 * Math.PI);
+                    const winnerIdx = Math.floor(finalPointer / sliceAngle) % count;
+
+                    currentWinnerIndex = winnerIdx;
+                    announceWinner(winnerIdx);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function animatePointerBounce() {
+            const pointer = document.getElementById('wheel-pointer');
+            pointer.style.transform = 'translateY(-50%) rotate(-18deg)';
+            setTimeout(() => {
+                pointer.style.transform = 'translateY(-50%) rotate(0deg)';
+            }, 65);
+        }
+
+        // ==========================================
+        // 9. PENGUMUMAN PEMENANG & KONFETI
+        // ==========================================
+        function announceWinner(index) {
+            const winnerName = participants[index];
+            const orderNumber = winners.length + 1;
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            winners.push({
+                name: winnerName,
+                order: orderNumber,
+                time: timeStr
+            });
+            saveState();
+            renderWinnersList();
+
+            playWinSound();
+            launchConfetti();
+
+            document.getElementById('modal-winner-order').textContent = `Pemenang Arisan Ke-${orderNumber}`;
+            document.getElementById('modal-winner-name').textContent = winnerName;
+
+            const modal = document.getElementById('winner-modal');
+            const card = document.getElementById('winner-modal-card');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 20);
+        }
+
+        function resolveWinner(removeFromWheel) {
+            if (!requireAdminAccess()) return;
+            if (removeFromWheel && currentWinnerIndex >= 0 && currentWinnerIndex < participants.length) {
+                const removedName = participants[currentWinnerIndex];
+                participants.splice(currentWinnerIndex, 1);
+                saveState();
+                renderParticipantsList();
+                drawWheel();
+                showToast(`${removedName} dihapus dari roda putar`, 'success');
+            } else {
+                showToast('Pemenang disimpan & tetap berada di roda', 'info');
+            }
+
+            currentWinnerIndex = -1;
+            closeWinnerModal();
+        }
+
+        function closeWinnerModal() {
+            const modal = document.getElementById('winner-modal');
+            const card = document.getElementById('winner-modal-card');
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 180);
+        }
+
+        function launchConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 90,
+                    spread: 75,
+                    origin: { y: 0.6 },
+                    colors: ['#f97316', '#f59e0b', '#10b981', '#ec4899', '#3b82f6']
+                });
+                setTimeout(() => {
+                    confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
+                    confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
+                }, 250);
+            }
+        }
+
+        // ==========================================
+        // 10. MANAJEMEN PESERTA & RIWAYAT PEMENANG
+        // ==========================================
+        function renderParticipantsList() {
+            const listEl = document.getElementById('participants-list');
+            const badgeEl = document.getElementById('wheel-count-badge');
+            badgeEl.textContent = `${participants.length} Peserta di Roda`;
+
+            if (participants.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-6 px-4 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                        <p class="text-sm font-medium text-stone-500">Semua peserta sudah terpilih atau daftar kosong.</p>
+                        ${isAdminAuthenticated ? `<button onclick="resetToDefaultParticipants()" class="mt-2 text-xs font-bold text-amber-600 hover:underline">Muat Ulang 17 Nama Awal</button>` : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = participants.map((name, idx) => {
+                const dotColor = WHEEL_COLORS[idx % WHEEL_COLORS.length];
+                const actionButtons = isAdminAuthenticated ? `
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="openEditModal(${idx})" class="p-1.5 rounded-lg text-stone-400 hover:text-amber-700 hover:bg-amber-100 transition" title="Edit Nama">
+                            <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="deleteParticipant(${idx})" class="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-100 transition" title="Hapus Nama">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-stone-50 hover:bg-amber-50/70 border border-stone-100 transition group">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${dotColor}"></span>
+                            <span class="text-xs font-bold text-stone-400 w-5">${idx + 1}.</span>
+                            <span class="text-sm font-semibold text-stone-800 truncate">${escapeHtml(name)}</span>
+                        </div>
+                        ${actionButtons}
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderWinnersList() {
+            const listEl = document.getElementById('winners-list');
+
+            if (winners.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-6 px-4 bg-amber-50/50 rounded-2xl border border-dashed border-amber-200">
+                        <p class="text-xs sm:text-sm text-amber-800/70 font-medium">Belum ada pemenang arisan yang tercatat.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = winners.map((item, idx) => `
+                <div class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50/60 border border-amber-200/80">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-xs font-bold shrink-0">
+                            Ke-${idx + 1}
+                        </span>
+                        <span class="text-sm font-bold text-stone-800 truncate">${escapeHtml(item.name)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-[11px] font-medium text-stone-400">${item.time || ''}</span>
+                        ${isAdminAuthenticated ? `
+                        <button onclick="deleteSingleWinner(${idx})" class="p-1 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-100/80 transition" title="Hapus dari riwayat">
+                            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                        </button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function addParticipant(e) {
+            e.preventDefault();
+            if (!requireAdminAccess() || isSpinning) return;
+
+            const input = document.getElementById('input-new-name');
+            const name = input.value.trim();
+            if (!name) return;
+
+            participants.push(name);
+            input.value = '';
+            saveState();
+            renderParticipantsList();
+            drawWheel();
+            showToast(`"${name}" ditambahkan ke roda`, 'success');
+        }
+
+        function deleteParticipant(index) {
+            if (!requireAdminAccess() || isSpinning) return;
+            const removed = participants.splice(index, 1)[0];
+            saveState();
+            renderParticipantsList();
+            drawWheel();
+            showToast(`"${removed}" dihapus dari roda`, 'info');
+        }
+
+        function shuffleParticipants() {
+            if (!requireAdminAccess() || isSpinning || participants.length < 2) return;
+            for (let i = participants.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [participants[i], participants[j]] = [participants[j], participants[i]];
+            }
+            saveState();
+            renderParticipantsList();
+            drawWheel();
+            showToast('Posisi peserta di roda berhasil diacak', 'info');
+        }
+
+        function resetToDefaultParticipants() {
+            if (!requireAdminAccess() || isSpinning) return;
+            participants = [...DEFAULT_PARTICIPANTS];
+            saveState();
+            renderParticipantsList();
+            drawWheel();
+            showToast('Daftar dikembalikan ke 17 nama awal!', 'success');
+        }
+
+        function deleteSingleWinner(index) {
+            if (!requireAdminAccess()) return;
+            winners.splice(index, 1);
+            winners.forEach((w, i) => w.order = i + 1);
+            saveState();
+            renderWinnersList();
+            showToast('Satu riwayat pemenang dihapus', 'info');
+        }
+
+        function clearAllWinners() {
+            if (!requireAdminAccess()) return;
+            winners = [];
+            saveState();
+            renderWinnersList();
+            showToast('Semua riwayat pemenang telah dibersihkan', 'info');
+        }
+
+        // ==========================================
+        // 11. MODAL EDIT & KONFIRMASI
+        // ==========================================
+        function openEditModal(index) {
+            if (!requireAdminAccess() || isSpinning) return;
+            editingIndex = index;
+            const input = document.getElementById('edit-name-input');
+            input.value = participants[index];
+            const modal = document.getElementById('edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeEditModal() {
+            editingIndex = -1;
+            const modal = document.getElementById('edit-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveEditedParticipant(e) {
+            e.preventDefault();
+            if (!requireAdminAccess()) return;
+            const newName = document.getElementById('edit-name-input').value.trim();
+            if (newName && editingIndex >= 0) {
+                participants[editingIndex] = newName;
+                saveState();
+                renderParticipantsList();
+                drawWheel();
+                showToast('Nama peserta diperbarui', 'success');
+            }
+            closeEditModal();
+        }
+
+        function openConfirmModal(actionType) {
+            if (!requireAdminAccess() || isSpinning) return;
+            pendingConfirmAction = actionType;
+            const titleEl = document.getElementById('confirm-title');
+            const msgEl = document.getElementById('confirm-message');
+
+            if (actionType === 'resetDefault') {
+                titleEl.textContent = 'Reset Daftar Peserta?';
+                msgEl.textContent = 'Daftar peserta di roda akan dikembalikan ke 17 nama keluarga awal.';
+            } else if (actionType === 'clearWinners') {
+                if (winners.length === 0) {
+                    showToast('Riwayat pemenang sudah kosong', 'info');
+                    return;
+                }
+                titleEl.textContent = 'Hapus Semua Pemenang?';
+                msgEl.textContent = 'Seluruh daftar riwayat pemenang yang tercatat akan dihapus permanen.';
+            }
+
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            pendingConfirmAction = null;
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.getElementById('confirm-yes-btn').addEventListener('click', () => {
+            if (pendingConfirmAction === 'resetDefault') {
+                resetToDefaultParticipants();
+            } else if (pendingConfirmAction === 'clearWinners') {
+                clearAllWinners();
+            }
+            closeConfirmModal();
+        });
+
+        // ==========================================
+        // 12. KONTROL TOMBOL & UTILITAS
+        // ==========================================
+        function updateControlsState() {
+            const btnMain = document.getElementById('btn-spin-main');
+            const textMain = document.getElementById('text-spin-main');
+            const btnCenter = document.getElementById('center-spin-btn');
+            const textCenter = document.getElementById('center-spin-text');
+            const btnShuffle = document.getElementById('btn-shuffle');
+
+            if (!isAdminAuthenticated) {
+                btnMain.disabled = false; // tetap bisa diklik untuk memunculkan pop-up PIN Admin
+                btnMain.classList.remove('btn-spin-glow');
+                textMain.textContent = '🔒 TERKUNCI (KHUSUS ADMIN IYOH)';
+                textCenter.textContent = '🔒';
+                btnShuffle.disabled = true;
+                return;
+            }
+
+            btnMain.disabled = isSpinning;
+            btnCenter.disabled = isSpinning;
+            btnShuffle.disabled = isSpinning;
+
+            if (isSpinning) {
+                btnMain.classList.remove('btn-spin-glow');
+                textMain.textContent = 'SEDANG MENGOCOK...';
+                textCenter.textContent = '...';
+            } else {
+                btnMain.classList.add('btn-spin-glow');
+                textMain.textContent = 'PUTAR SEKARANG!';
+                textCenter.textContent = 'PUTAR';
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let bgClass = 'bg-stone-800 text-white';
+            if (type === 'success') bgClass = 'bg-emerald-600 text-white';
+            if (type === 'error') bgClass = 'bg-red-600 text-white';
+
+            toast.className = `${bgClass} px-4 py-2.5 rounded-2xl shadow-lg text-xs sm:text-sm font-semibold flex items-center gap-2 transform transition-all duration-300 translate-y-4 opacity-0`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Inisialisasi saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            applyRoleUI();
+            resizeCanvas();
+            lucide.createIcons();
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+    </script>
+
+</body></html>
